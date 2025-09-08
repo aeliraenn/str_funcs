@@ -3,23 +3,25 @@
 #include <stdlib.h>
 #include <errno.h>
 
-char* my_strncpy (char *dest, const char *source, int n) {
+char* my_strncpy (char *dest, const char *source, int lim) {
     assert(dest);
     assert(source);
 
     int copied = 0;
     char *pdest = dest;
 
-    while ((copied++ < n) && (*dest++ = *source++));
+    while ((copied++ < lim) && (*source != '\0')) {
+        *dest++ = *source++;
+    }
 
-    if (copied <= n) {
+    if (copied <= lim) {
         *dest = '\0';
     }
 
     return pdest;
 }
 
-char* my_strncpy1 (char *dest, const char *source, int n) {
+char* my_strncpy1 (char *dest, const char *source, int lim) {
     assert(dest);
     assert(source);
 
@@ -27,31 +29,31 @@ char* my_strncpy1 (char *dest, const char *source, int n) {
     char *pdest = dest;
 
     int i = 0;
-    while ((copied < n) && (source[i] != '\0')) {
-        dest[i] = source[i];
-        i++;
+    while ((copied < lim) && (source[i] != '\0')) {
+        dest[i++] = source[i];
         copied++;
     }
 
-    if (copied <= n) {
-        *dest = '\0';
+    if (copied <= lim) {
+        dest[i] = '\0';
     }
 
     return pdest;
 }
             //  указательная арифметика + вынести все из цикла +
 // сделать все функции во втором экзмепляре без указательной арифметики
-char* my_strncat(char *dest, const char *src, int n) {
+char* my_strncat(char *dest, const char *src, int lim) {
     assert(dest);
     assert(src);
 
     char *pdest = dest;
-    int i = 0;
-    while (dest[i]) {
-        i++;
+    while (*dest != '\0') {
+        dest++;
     }
     int copied = 0;
-    while ((++copied <= n) && (dest[i++] = *src++));
+    while ((++copied <= lim) && (*src != '\0')) {
+        *dest++ = *src++;
+    }
     return pdest;
 }
 
@@ -61,15 +63,14 @@ char* my_strncat1 (char *dest, const char *src, int n) {
 
     char *pdest = dest;
     int i = 0;
-    while (dest[i]) {
+    while (dest[i] != '\0') {
         i++;
     }
 
     int copied = 0;
     while ((copied < n) && (src[i] != '\0')) {
-        dest[i] = src[i];
+        dest[i++] = src[i];
         copied++;
-        i++;
     }
     return pdest;
 }
@@ -78,13 +79,12 @@ int my_strlen (const char *s) {
     assert(s);
 
     int len = 0;
-    char c = 0;
-    while (c = *s++) {
+    while (*s != '\0') {
         len++;
+        s++;
     }
     return len;
 }
-
 int my_strlen1 (const char *s) {
     assert(s);
 
@@ -100,7 +100,9 @@ char* my_strcpy (char *dest, const char *source) {
     assert(source);
 
     char *pdest = dest;
-    while (*dest++ = *source++);
+    while (*source != '\0') {
+        *dest++ = *source++;
+    }
     return pdest;
 }
 
@@ -112,8 +114,7 @@ char* my_strcpy1 (char *dest, const char *source) {
 
     int i = 0;
     while (source[i] != '\0') {
-        dest[i] = source[i];
-        i++;
+        dest[i++] = source[i];
     }
     return pdest;
 }
@@ -138,33 +139,31 @@ char* my_strdup1(const char *str)  {
     return ptr;
 }
 
-const char* my_strchr (const char *s, int ch)  {
-    assert(s);
+const char* my_strchr (const char *str, int target)  {
+    assert(str);
 
-    int c = 0;
-
-    while ((c = *s) && (c != ch)) {
-        s++;
+    while ((*str!= '\0') && (*str != target)) {
+        str++;
     }
 
-    if (c == ch) {
-        return s;
+    if (*str == target) {
+        return str;
     }
     else {
         return NULL;
     }
 }
 
-const char* my_strchr1 (const char *s, int ch)  {
-    assert(s);
+const char* my_strchr1 (const char *str, int target)  {
+    assert(str);
 
     int i = 0;
-    while (s[i] != ch) {
+    while ((str[i] != '\0') && (str[i] != target)) {
         i++;
     }
 
-    if (s[i] == ch) {
-        return s;
+    if (str[i] == target) {
+        return str;
     }
     else {
         return NULL;
@@ -179,7 +178,9 @@ char* my_strcat(char *dest, const char *src) {
 
     while (*dest++);  //finds the end of the destination string
 
-    while (*dest++ = *src++); //copies source string to the end of dest string
+    while (*src != '\0') {
+        *dest++ = *src++;
+    } //copies source string to the end of dest string
 
     return pdest;
 }
@@ -196,97 +197,107 @@ char* my_strcat1 (char *dest, const char *src) {
     }
 
     while (src[i] != '\0') {
-        dest[i] = src[i];
-        i++;
+        dest[i++] = src[i];
     }
 
     return pdest;
 }
 
-int my_puts (char *s) {
-    assert(s);
+int my_puts (char *str) {
+    assert(str);
 
-    int c = 0;
-
-    while (c = *s++) {
-        putchar(c);
+    while (*str != '\0') {
+        putchar(*str);
+        str++;
     }
 
     return ferror(stdout) ? EOF : 0;
 }
 
-int my_puts1 (char *s) {
-    assert(s);
+int my_puts1 (char *str) {
+    assert(str);
 
     int i = 0;
 
-    while (s[i] != '\0') {
-        putchar(s[i]);
+    while (str[i] != '\0') {
+        putchar(str[i]);
+        i++;
     }
 
     return ferror(stdout) ? EOF : 0;
 }
 
-int my_atoi (const char* s) { // указательная арифметика
-    assert(s);
+int my_atoi (const char* str) {
+    assert(str);
 
-    int n = 0;
-    for (int i = 0; s[i] >= '0' && s[i] <='9'; i++) {
-        n = 10*n + (s[i]-'0');
+    int i = 0;
+    int num = 0;
+    int sign = 1;
+    if (str[i] == '-') {
+        sign = -1;
+        i++;
     }
-    return n;
+    for (i; str[i] >= '0' && str[i] <='9'; i++) {
+        num = 10 * num + (str[i] - '0');
+    }
+    return num * sign;
 }
 
-int my_atoi1 (const char* s) { // указательная арифметика
-    assert(s);
+int my_atoi1 (const char* str) { // указательная арифметика
+    assert(str);
 
-    int n = 0;
-
-    while (*s >= '0' && *s <= '9') {   // while (*s >= '0' && *s++ <= '9'); will work??
-        n = 10 * n + (*s - '0');
-        s++;
+    int num = 0;
+    int sign = 1;
+    if (*str == '-') {
+        sign = -1;
+        str++;
     }
-    return n;
+
+    while (*str >= '0' && *str <= '9') {   // while (*s >= '0' && *s++ <= '9'); will work??
+        num = 10 * num + (*str - '0');
+        str++;
+    }
+    return num * sign;
 }
 
-char* my_fgets (char *s, int n, FILE *f) {
-    assert(s);
-    assert(f);
+char* my_fgets (char *str, int lim, FILE *file) {
+    assert(str);
+    assert(file);
 
-    char c = 0;
-    char *ps = s;
+    char symbol = 0;
+    char *ptr_str = str;
 
-    while ((--n > 0) && (c = getc(f)) != EOF) {
-        if ((*ps++ = c) == '\n') {
+    while ((--lim > 0) && (symbol = getc(file)) != EOF) {
+        if ((*ptr_str++ = symbol) == '\n') {
             break;
         }
     }
 
-    *ps = '\0';
+    *ptr_str = '\0';
 
-    return (c == EOF && ps == s) ? NULL : s;
+    return (symbol == EOF && ptr_str == str) ? NULL : str;
 }
 
-char* my_fgets1 (char *s, int n, FILE *f) {
-    assert(s);
-    assert(f);
+char* my_fgets1 (char *str, int lim, FILE *file) {
+    assert(str);
+    assert(file);
 
-    char c = getc(f);
-    char *ps = s;
+    char symbol = getc(file);
+    char *ptr_str = str;
 
-    while ((n >= 0) && (c != EOF)) {
-        *ps = c;
-        if (*ps == '\n') {
-            ps++;
+    while ((lim >= 0) && (symbol != EOF)) {
+        *ptr_str = symbol;
+        if (*ptr_str == '\n') {
+            ptr_str++;
             break;
         }
-        n--;
-        ps++;
+        lim--;
+        ptr_str++;
     }
 
-    *ps = '\0';
+    *ptr_str = '\0';
 
-    return (c == EOF && ps == s) ? NULL : s;
+    return (symbol == EOF && ptr_str == str) ? NULL : str;
 }
 
 ssize_t my_getline (char **lineptr, size_t *len, FILE *stream) {
@@ -304,9 +315,9 @@ ssize_t my_getline (char **lineptr, size_t *len, FILE *stream) {
     }
 
     size_t pos = 0;
-    int c = 0;
+    int symbol = 0;
 
-    while ((c = fgetc(stream)) != EOF) {
+    while ((symbol = fgetc(stream)) != EOF) {
         if (pos + 1 >= *len) { //checks if we need to resize the buffer
             size_t new_size = 2 * (*len);
             char *new_ptr = (char *)realloc(*lineptr, new_size);
@@ -318,17 +329,15 @@ ssize_t my_getline (char **lineptr, size_t *len, FILE *stream) {
             *len = new_size;
         }
 
-        (*lineptr)[pos++] = (char)c;
+        (*lineptr)[pos++] = (char)symbol;
 
-        if (c == '\n') {
+        if (symbol == '\n') {
             break;
         }
     }
 
-    if (pos < *len) {              //adds '\0' to the end of the string
-        (*lineptr)[pos] = '\0';
-    } else {            //resizes line for '\0' if needed
-        size_t new_size = *len + 1;
+    if ((pos < *len - 1) || (pos == *len)) {
+        size_t new_size = pos + 1;
         char *new_ptr = (char *)realloc(*lineptr, new_size);
         if (new_ptr == NULL) {
             perror("Error: realloc coldn\'t allocate space\n");
@@ -336,10 +345,11 @@ ssize_t my_getline (char **lineptr, size_t *len, FILE *stream) {
         }
         *lineptr = new_ptr;
         *len = new_size;
-        (*lineptr)[pos] = '\0';
     }
 
-    if (pos == 0 && c == EOF) {
+    (*lineptr)[pos] = '\0';
+
+    if (pos == 0 || symbol == EOF) {
         return -1;
     }
 
@@ -347,9 +357,9 @@ ssize_t my_getline (char **lineptr, size_t *len, FILE *stream) {
 }
 
 int main () {
-    FILE *f = fopen("file.txt", "r");
-    char s[15] = "";
-    my_fgets(s, 10, f);
+    //FILE *f = fopen("file.txt", "r");
+    //char s[15] = "";
+    //my_fgets(s, 10, f);
 
 
     return 0;
